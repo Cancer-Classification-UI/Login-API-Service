@@ -1,2 +1,2 @@
-# Login-API-Service
+# Login API Service
 Handles login specific logic
