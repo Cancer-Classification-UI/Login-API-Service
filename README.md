@@ -7,7 +7,7 @@ API Documentation is created using the [Swagger](https://swagger.io/). The url f
 http://<ip>:<APP_PORT>/swagger/index.html
 ``` 
 
-If you are running locally it would be at [http://127.0.0.1:8088/swagger/index.html](http://127.0.0.1:8088/swagger/index.html)
+If you are running locally it would be at [http://127.0.0.1:8084/swagger/index.html](http://127.0.0.1:8084/swagger/index.html)
 
 # How to run
 
@@ -24,7 +24,7 @@ vim .env
 
 ### `.env` Template
 ```
-APP_PORT=:8088 // Standard port for this microservice
+APP_PORT=:8084 // Standard port for this microservice
 LOG_LEVEL=trace
 METHOD_LOGGING=false
 ```
