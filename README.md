@@ -31,17 +31,30 @@ METHOD_LOGGING=false
 > Additional fields will also be required in the `.env` file to run the microservice successfully. Here is a basic template of the `.env`. Customize to your liking. This template will change as the microservice matures and implements new features.
 
 ## Build
-### With Docker
+
+<details close>
+<summary><h3>With Docker</h3></summary>
+<br>
+
 ```bash
 docker build -t ccu-login-api .
 ```
-### Without Docker
+</details>
+
+<details close>
+<summary><h3>Without Docker</h3></summary>
+<br>
+
 ```bash
 go build
 ```
+</details>
 
 ## Run
-### With Docker
+<details close>
+<summary><h3>With Docker</h3></summary>
+<br>
+
 Make sure you have a `log.txt` file in the repo directory, otherwise it wont be able to attach the log.txt and will give a warning and sometimes even an error
 ```bash
 touch log.txt
@@ -50,8 +63,12 @@ Then run the docker image
 ```bash
 docker run -d -p $(cat .env | grep APP_PORT= | cut -d: -f2 | awk '/^/ { print $1":"$1 }') -v $(pwd)/log.txt:/usr/src/app/log.txt --name login-api ccu-login-api
 ```
+</details>
 
-### Without Docker
+<details close>
+<summary><h3>Without Docker</h3></summary>
+<br>
+
 ```bash
 go run ccu
 ```
@@ -63,6 +80,7 @@ go run main.go
 ```bash
 go mod tidy
 ``` 
+</details>
 
 ## Other
 
