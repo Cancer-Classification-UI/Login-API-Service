@@ -1,17 +1,15 @@
-# Docker container for the login-api service
-# Will download needed dependencies and build the service and run it
 
 FROM golang:alpine
 WORKDIR /usr/src/app
 
-COPY go.mod go.sum .env ./
+# Copy local code to the container image.
+COPY . ./
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go mod download && go mod verify
 
-COPY . .
 RUN go build
 RUN swag init
 
-
+# Run the the service on startup
 CMD ["go","run","ccu"]

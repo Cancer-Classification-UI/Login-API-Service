@@ -61,6 +61,10 @@ touch log.txt
 ```
 Then run the docker image
 ```bash
+./scripts/start.sh
+```
+or manually with
+```bash
 docker run -d -p $(cat .env | grep APP_PORT= | cut -d: -f2 | awk '/^/ { print $1":"$1 }') -v $(pwd)/log.txt:/usr/src/app/log.txt --name login-api ccu-login-api
 ```
 </details>
@@ -99,6 +103,10 @@ docker attach login-api
 
 ### Shutting down docker container
 If you want to fully shutdown the container
+```bash
+./scripts/stop.sh
+```
+or manually with
 ```bash
 docker kill login-api
 docker rm login-api
