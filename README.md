@@ -61,7 +61,7 @@ touch log.txt
 ```
 Then run the docker image
 ```bash
-./start.sh
+./scripts/start.sh
 ```
 or manually with
 ```bash
@@ -104,7 +104,7 @@ docker attach login-api
 ### Shutting down docker container
 If you want to fully shutdown the container
 ```bash
-./stop.sh
+./scripts/stop.sh
 ```
 or manually with
 ```bash
