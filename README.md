@@ -1,4 +1,6 @@
 # Login API Service
+[![Login API Image Deployment](https://github.com/Cancer-Classification-UI/Login-API-Service/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/Cancer-Classification-UI/Login-API-Service/actions/workflows/docker-image.yml)
+
 This service is responsible for login logic. Handles login events and account creation
 
 API Documentation is created using the [Swagger](https://swagger.io/). The url for the Swagger UI is on the same port as the `APP_PORT` in the `.env` file at 
