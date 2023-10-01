@@ -1,0 +1,26 @@
+name: Login API Image Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: deployment
+    permissions: write-all
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+    
+    - name: Push To Registry
+      uses: mr-smithers-excellent/docker-build-push@v6
+      with:
+        image: ccu-login-api
+        tags: latest
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
