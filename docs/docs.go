@@ -19,6 +19,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/signin-auth": {
+            "post": {
+                "description": "Checks for a matching username and password hash in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Checks if credentials are correct",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username of the account",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "hashed account password",
+                        "name": "password_hash",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.SignInResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/test-no-auth": {
             "get": {
                 "description": "Will ask the service to generate a test json and return it back to the requester",
@@ -27,6 +78,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Tests"
                 ],
                 "summary": "Gets a test value from the service, sanity check",
                 "responses": {
@@ -53,6 +107,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.SignInResponse": {
+            "type": "object",
+            "properties": {
+                "date_created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Test": {
             "type": "object",
             "properties": {

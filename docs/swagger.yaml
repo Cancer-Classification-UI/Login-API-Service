@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  model.SignInResponse:
+    properties:
+      date_created:
+        type: string
+      id:
+        type: string
+      success:
+        type: boolean
+      username:
+        type: string
+    type: object
   model.Test:
     properties:
       amount:
@@ -23,6 +34,40 @@ info:
   title: Login API
   version: "1.0"
 paths:
+  /signin-auth:
+    post:
+      consumes:
+      - application/json
+      description: Checks for a matching username and password hash in the database
+      parameters:
+      - description: username of the account
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: hashed account password
+        in: query
+        name: password_hash
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SignInResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Checks if credentials are correct
+      tags:
+      - Auth
   /test-no-auth:
     get:
       consumes:
@@ -45,4 +90,6 @@ paths:
         "500":
           description: Internal Server Error
       summary: Gets a test value from the service, sanity check
+      tags:
+      - Tests
 swagger: "2.0"
