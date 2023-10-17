@@ -1,10 +1,12 @@
 package auth
+package main
 
 import (
 	"math/rand"
 	"net/http"
 	"time"
-
+         "github.com/gin-gonic/gin"
+         "golang.org/x/crypto/bcrypt" 
 	"ccu/api"
 	mAPI "ccu/model/api"
 
@@ -58,4 +60,84 @@ func PostSignIn(w http.ResponseWriter, r *http.Request) {
 // Insert Credentials Code Here
 func CheckCredentials(Username string, PasswordHash string) bool {
 	return rand.Intn(2) == 1
+}
+
+type User struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+
+// Sample user data (replace with database)
+var users = []User{
+    {Username: "user1", Password: "$2a$10$L3ufbDKLP0Cn8qKfsl5BcOzcsk.MDl0zDa.OYRf6.PSdbK7LiTaeO"}, // Hashed password for "password1"
+    {Username: "user2", Password: "$2a$10$ewRmCuJzJGOS7TafJzVxjOzpiTn7PZi0CV8hXwq2p3.o4uHHDFwJ8u"}, // Hashed password for "password2"
+}
+
+func main() {
+    r := gin.Default()
+
+    // API endpoint for login
+    r.POST("/api/login", func(c *gin.Context) {
+        var req User
+
+        if err := c.ShouldBindJSON(&req); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request"})
+            return
+        }
+
+        if !validateUser(req.Username, req.Password) {
+            c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid username or password"})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+    })
+
+    // API endpoint for account creation
+    r.POST("/api/account", func(c *gin.Context) {
+        var req User
+
+        if err := c.ShouldBindJSON(&req); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request"})
+            return
+        }
+
+        if userExists(req.Username) {
+            c.JSON(http.StatusConflict, gin.H{"message": "Username already exists"})
+            return
+        }
+
+        // Hash the password before storing it
+        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create account"})
+            return
+        }
+
+        users = append(users, User{Username: req.Username, Password: string(hashedPassword)})
+        c.JSON(http.StatusCreated, gin.H{"message": "Account created successfully"})
+    })
+
+    r.Run(":8080") // Replace with port
+}
+
+// Function to validate username and password
+func validateUser(username, password string) bool {
+    for _, user := range users {
+        if user.Username == username {
+            err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+            return err == nil
+        }
+    }
+    return false
+}
+
+// Function to check if a user with the given username already exists
+func userExists(username string) bool {
+    for _, user := range users {
+        if user.Username == username {
+            return true
+        }
+    }
+    return false
 }
