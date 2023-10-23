@@ -32,14 +32,28 @@ METHOD_LOGGING=false
 ```
 > Additional fields will also be required in the `.env` file to run the microservice successfully. Here is a basic template of the `.env`. Customize to your liking. This template will change as the microservice matures and implements new features.
 
-## Build
+## Install
 
+### Go
+You will also need to [install go](https://go.dev/doc/install), install it per your operating system you are using.
+
+### Swagger (Swaggo)
+You will need the swaggo package to create the swagger files.
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
+### Docke (Optional)
+If you want to use the docker containers provided (Recommended) [install docker](https://www.docker.com/get-started/). It also is required if you want to use the scripts.
+
+## Build
 <details close>
 <summary><h3>With Docker</h3></summary>
 <br>
 
 ```bash
 docker build -t ccu-login-api .
+swag init
 ```
 </details>
 
@@ -49,6 +63,7 @@ docker build -t ccu-login-api .
 
 ```bash
 go build
+swag init
 ```
 </details>
 
