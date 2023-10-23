@@ -44,7 +44,7 @@ func main() {
 	CreateLog()
 	SetupLog()
 
-	//get Mongo URI
+	//get Mongo URI for connection
 	uri := os.Getenv("MONGODV_URI")
 	if uri == "" {
 		log.Fatal("You must set your 'MONGODB_URI'")
