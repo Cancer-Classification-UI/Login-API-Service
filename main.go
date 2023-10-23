@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	_ "encoding/json"
 	"fmt"
 	_ "io/ioutil"
@@ -17,11 +18,17 @@ import (
 
 	_ "ccu/docs"
 
+	"context"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/thedevsaddam/gojsonq"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // @title           Login API
@@ -36,7 +43,60 @@ func main() {
 
 	CreateLog()
 	SetupLog()
+
+	//get Mongo URI
+	uri := os.Getenv("MONGODV_URI")
+	if uri == "" {
+		log.Fatal("You must set your 'MONGODB_URI'")
+	}
+
+	//connect to mongo
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	//checks for a specific username in the login Database
+	coll := client.Database("loginDB").Collection("user_login")
+	username := "sampleusername"
+
+	//search a database for a certain document
+	var result bson.M
+	err = coll.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		log.Warning("No document was found with the title", username)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+	jsonData, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	log.Info(string(jsonData[:]))
+
+	//ping to check if mongo is successfully connected
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatal("Failed to connect to MongoDB:", err)
+	}
+	log.Info("Mongo successfuly connected")
+
+	//List the database names
+	databases, err := client.ListDatabaseNames(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Info(databases)
+
 	SetupEndpoint()
+
 }
 
 // Requests
@@ -93,6 +153,7 @@ func SetupLog() {
 	log.Info("STARTING LOG...")
 	log.Info("LOG_LEVEL: " + logLevel)
 	log.Info("METHOD_LOGGING: " + methodLogging)
+
 }
 
 // Setup http as a go routine

@@ -13,5 +13,6 @@ require (
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.2
 	github.com/thedevsaddam/gojsonq v2.3.0+incompatible
+	go.mongodb.org/mongo-driver v1.12.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
