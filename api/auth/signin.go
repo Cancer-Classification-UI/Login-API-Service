@@ -67,10 +67,10 @@ var users = []User{
 
 // Insert Credentials Code Here
 func CheckCredentials(Username string, PasswordHash string) bool {
-	user, exists := userDatabase[username] //add data base connection
-	if !exists {
-		return false // User not found
+	for i := 0; i < len(users); i++ {
+		if users[i].Username == Username {
+			return users[i].Password == PasswordHash
+		}
 	}
-
-	return user.PasswordHash == PasswordHash //change with password hash variable in data base
+	return false
 }

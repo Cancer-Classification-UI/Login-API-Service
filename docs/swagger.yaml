@@ -34,6 +34,46 @@ info:
   title: Login API
   version: "1.0"
 paths:
+  /create-account-auth:
+    post:
+      consumes:
+      - application/json
+      description: Checks for a unique username and then registers the account in
+        the database
+      parameters:
+      - description: username of the account
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: hashed account password
+        in: query
+        name: password_hash
+        required: true
+        type: string
+      - description: email of the user
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SignInResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Creates account for the user
+      tags:
+      - Auth
   /signin-auth:
     post:
       consumes:

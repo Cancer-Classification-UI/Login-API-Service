@@ -44,6 +44,7 @@ func main() {
 func handleRequests(r *mux.Router) {
 	r.HandleFunc("/api/v1/test-no-auth", test.GetTest).Methods("GET")
 	r.HandleFunc("/api/v1/signin-auth", auth.PostSignIn).Methods("POST")
+	r.HandleFunc("/api/v1/create-account-auth", auth.PostCreateAccount).Methods("POST")
 }
 
 // Build log output file
