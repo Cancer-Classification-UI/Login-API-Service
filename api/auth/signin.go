@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -8,6 +9,8 @@ import (
 	mAPI "ccu/model/api"
 
 	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type User struct {
@@ -59,18 +62,34 @@ func PostSignIn(w http.ResponseWriter, r *http.Request) {
 	api.RespondOK(w, response)
 }
 
-// Sample user data (replace with database)
-var users = []User{
-	{Username: "user1", Password: "$2a$10$L3ufbDKLP0Cn8qKfsl5BcOzcsk.MDl0zDa.OYRf6.PSdbK7LiTaeO"},  // Hashed password for "password1"
-	{Username: "user2", Password: "$2a$10$ewRmCuJzJGOS7TafJzVxjOzpiTn7PZi0CV8hXwq2p3.o4uHHDFwJ8u"}, // Hashed password for "password2"
+var client *mongo.Client
+
+func SetClientSignIn(c *mongo.Client) {
+	client = c
 }
 
 // Insert Credentials Code Here
 func CheckCredentials(Username string, PasswordHash string) bool {
-	for i := 0; i < len(users); i++ {
-		if users[i].Username == Username {
-			return users[i].Password == PasswordHash
-		}
+
+	//checks for a specific username in the login Database
+	coll := client.Database("loginDB").Collection("user_login")
+
+	//search a database for a certain document
+	var result bson.M
+	err := coll.FindOne(context.TODO(), bson.D{{"username", Username}}).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		log.Warning("No document was found with the title", Username)
+		return false
 	}
-	return false
+	if err != nil {
+		panic(err)
+	}
+
+	//ping to check if mongo is successfully connected
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatal("Failed to connect to MongoDB:", err)
+	}
+
+	return result["password"] == PasswordHash
 }

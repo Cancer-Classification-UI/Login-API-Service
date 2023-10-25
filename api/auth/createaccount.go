@@ -1,14 +1,18 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"ccu/api"
 	mAPI "ccu/model/api"
 
-	log "github.com/sirupsen/logrus"
 	"regexp"
+
+	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // PostCreateAccount godoc
@@ -47,7 +51,7 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	regex := regexp.MustCompile("^..*@.*.\\.(com|net|org)$")
-	
+
 	if email == "" || !regex.MatchString(email) {
 		api.Respond(w, "Invalid Email Parameter", http.StatusBadRequest)
 		return
@@ -57,7 +61,7 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 	response := mAPI.CreateAccountResponse{
 		Id:          "CREATEACCOUNT",
 		DateCreated: time.Now(),
-		Success:     CredentialsExist(username),
+		Success:     CredentialsExist(username, password_hash, email),
 		Username:    username,
 	}
 
@@ -65,11 +69,29 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 // Insert Credentials Code Here
-func CredentialsExist(Username string) bool {
-	for i := 0; i < len(users); i++ {
-		if users[i].Username == Username {
+func CredentialsExist(Username string, PasswordHash string, Email string) bool {
+	//checks for a specific username in the login Database
+	coll := client.Database("loginDB").Collection("user_login")
+
+	//search a database for a certain document
+	var result bson.M
+	err := coll.FindOne(context.TODO(), bson.D{{"username", Username}}).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		row := bson.M{
+			"username": Username,
+			"password": PasswordHash,
+			"email":    Email,
+		}
+
+		_, err := coll.InsertOne(context.TODO(), row)
+		if err != nil {
+			log.Fatal(err)
 			return false
 		}
+		return true
 	}
-	return true
+	if err != nil {
+		panic(err)
+	}
+	return false
 }

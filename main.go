@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	_ "encoding/json"
 	"fmt"
 	_ "io/ioutil"
@@ -27,7 +26,6 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/thedevsaddam/gojsonq"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -62,39 +60,7 @@ func main() {
 		}
 	}()
 
-	//checks for a specific username in the login Database
-	coll := client.Database("loginDB").Collection("user_login")
-	username := "sampleusername"
-
-	//search a database for a certain document
-	var result bson.M
-	err = coll.FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&result)
-	if err == mongo.ErrNoDocuments {
-		log.Warning("No document was found with the title", username)
-		return
-	}
-	if err != nil {
-		panic(err)
-	}
-	jsonData, err := json.MarshalIndent(result, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	log.Info(string(jsonData[:]))
-
-	//ping to check if mongo is successfully connected
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
-	}
-	log.Info("Mongo successfuly connected")
-
-	//List the database names
-	databases, err := client.ListDatabaseNames(context.TODO(), bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Info(databases)
+	auth.SetClientSignIn(client)
 
 	SetupEndpoint()
 
