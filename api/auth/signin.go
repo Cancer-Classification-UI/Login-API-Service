@@ -32,7 +32,6 @@ type User struct {
 // @Failure      500
 // @Router       /signin [get]
 func GetSignIn(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
 	if r.Method != http.MethodGet {
 		api.Respond(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
