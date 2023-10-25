@@ -28,7 +28,7 @@ import (
 // @Failure      400
 // @Failure      404
 // @Failure      500
-// @Router       /create-account-auth [post]
+// @Router       /create-account [post]
 func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if r.Method != http.MethodPost {

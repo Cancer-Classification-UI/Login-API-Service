@@ -29,6 +29,7 @@ vim .env
 APP_PORT=:8084 // Standard port for this microservice
 LOG_LEVEL=trace
 METHOD_LOGGING=false
+MONGODB_URI=<URI HERE>
 ```
 > Additional fields will also be required in the `.env` file to run the microservice successfully. Here is a basic template of the `.env`. Customize to your liking. This template will change as the microservice matures and implements new features.
 

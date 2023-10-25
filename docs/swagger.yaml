@@ -34,7 +34,7 @@ info:
   title: Login API
   version: "1.0"
 paths:
-  /create-account-auth:
+  /create-account:
     post:
       consumes:
       - application/json
@@ -74,8 +74,8 @@ paths:
       summary: Creates account for the user
       tags:
       - Auth
-  /signin-auth:
-    post:
+  /signin:
+    get:
       consumes:
       - application/json
       description: Checks for a matching username and password hash in the database

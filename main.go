@@ -44,7 +44,7 @@ func main() {
 	SetupLog()
 
 	//get Mongo URI for connection
-	uri := os.Getenv("MONGODV_URI")
+	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
 		log.Fatal("You must set your 'MONGODB_URI'")
 	}
@@ -69,8 +69,8 @@ func main() {
 // Requests
 func handleRequests(r *mux.Router) {
 	r.HandleFunc("/api/v1/test-no-auth", test.GetTest).Methods("GET")
-	r.HandleFunc("/api/v1/signin-auth", auth.PostSignIn).Methods("POST")
-	r.HandleFunc("/api/v1/create-account-auth", auth.PostCreateAccount).Methods("POST")
+	r.HandleFunc("/api/v1/signin", auth.GetSignIn).Methods("GET")
+	r.HandleFunc("/api/v1/create-account", auth.PostCreateAccount).Methods("POST")
 }
 
 // Build log output file
@@ -128,7 +128,7 @@ func SetupLog() {
 // Setup http as a go routine
 func SetupHttp(APP_PORT string, r *mux.Router, wg *sync.WaitGroup) {
 	log.Info("Listening and serving on HTTP port", APP_PORT)
-	log.Error(http.ListenAndServe(APP_PORT, r))
+	log.Error(http.ListenAndServe(":"+APP_PORT, r))
 	Cleanup()
 	wg.Done()
 }
@@ -138,7 +138,7 @@ func SetupSwagger(APP_PORT string, r *mux.Router, wg *sync.WaitGroup) {
 	// Serve Swagger UI at the root URL
 	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler())
 
-	log.Info("Swagger is served on url: http://localhost" + APP_PORT + "/swagger/")
+	log.Info("Swagger is served on url: http://localhost:" + APP_PORT + "/swagger/")
 	wg.Done()
 }
 

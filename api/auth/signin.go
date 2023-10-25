@@ -18,7 +18,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-// PostSignIn godoc
+// GetSignIn godoc
 // @Summary      Checks if credentials are correct
 // @Description  Checks for a matching username and password hash in the database
 // @Tags         Auth
@@ -30,16 +30,16 @@ type User struct {
 // @Failure      400
 // @Failure      404
 // @Failure      500
-// @Router       /signin-auth [post]
-func PostSignIn(w http.ResponseWriter, r *http.Request) {
+// @Router       /signin [get]
+func GetSignIn(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet {
 		api.Respond(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	username := r.Form.Get("username")
-	password_hash := r.Form.Get("password_hash")
+	username := r.URL.Query().Get("username")
+	password_hash := r.URL.Query().Get("password_hash")
 
 	if username == "" {
 		api.Respond(w, "Invalid Username Parameter", http.StatusBadRequest)

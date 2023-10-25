@@ -19,7 +19,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/create-account-auth": {
+        "/create-account": {
             "post": {
                 "description": "Checks for a unique username and then registers the account in the database",
                 "consumes": [
@@ -77,8 +77,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/signin-auth": {
-            "post": {
+        "/signin": {
+            "get": {
                 "description": "Checks for a matching username and password hash in the database",
                 "consumes": [
                     "application/json"
