@@ -135,7 +135,7 @@ func SetupHttp(APP_PORT string, r *mux.Router, wg *sync.WaitGroup) {
 
 // Sets up swagger and serves it
 func SetupSwagger(APP_PORT string, r *mux.Router, wg *sync.WaitGroup) {
-	// Serve Swagger UI at the root URL
+	// Serve Swagger UI at the root URLs
 	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler())
 
 	log.Info("Swagger is served on url: http://localhost:" + APP_PORT + "/swagger/")
