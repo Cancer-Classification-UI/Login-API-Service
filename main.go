@@ -127,7 +127,7 @@ func SetupLog() {
 
 // Setup http as a go routine
 func SetupHttp(APP_PORT string, r *mux.Router, wg *sync.WaitGroup) {
-	log.Info("Listening and serving on HTTP port", APP_PORT)
+	log.Info("Listening and serving on HTTP port ", APP_PORT)
 	log.Error(http.ListenAndServe(":"+APP_PORT, r))
 	Cleanup()
 	wg.Done()
