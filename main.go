@@ -36,7 +36,6 @@ func main() {
 	fmt.Println("Starting Login-API microservice...")
 	fmt.Println("No logs will be generated here. Please see log.txt file for logging")
 
-	CreateLog()
 	SetupLog()
 	db.InitDB()
 	SetupEndpoint()
@@ -48,22 +47,6 @@ func handleRequests(r *mux.Router) {
 	r.HandleFunc("/api/v1/test-no-auth", test.GetTest).Methods("GET")
 	r.HandleFunc("/api/v1/signin", auth.GetSignIn).Methods("GET")
 	r.HandleFunc("/api/v1/create-account", auth.PostCreateAccount).Methods("POST")
-}
-
-// Build log output file
-func CreateLog() {
-	os.Remove("log.txt")      // remove old log
-	file, err := os.OpenFile( // create new log
-		"log.txt",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0666)
-
-	if err != nil {
-		fmt.Errorf("Cannot create a log file: ", err)
-		os.Exit(1)
-	}
-
-	log.SetOutput(file)
 }
 
 // Load in .env variables and setup logging

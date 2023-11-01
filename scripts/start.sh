@@ -3,9 +3,6 @@ cd "$(dirname "$0")"
 SCRIPT_DIR="$(pwd)"
 echo "Starting containers..."
 
-echo "Clearing log file..."
-> $SCRIPT_DIR/../log.txt
-
 echo "Creating compose from template..."
 
 # Get URI from .env
