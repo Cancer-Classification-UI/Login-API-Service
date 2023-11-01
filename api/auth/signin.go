@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"ccu/api"
+	db "ccu/db"
 	mAPI "ccu/model/api"
 
 	log "github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ type User struct {
 // @Failure      500
 // @Router       /signin [get]
 func GetSignIn(w http.ResponseWriter, r *http.Request) {
+	log.Info("In signin handler -------------------------")
 	if r.Method != http.MethodGet {
 		api.Respond(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -50,45 +52,37 @@ func GetSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info("In signin handler -------------------------")
+	success, name := CheckCredentials(username, password_hash)
+
+	if !success {
+		name = ""
+	}
+
 	response := mAPI.SignInResponse{
-		Id:          "SIGNIN",
 		DateCreated: time.Now(),
-		Success:     CheckCredentials(username, password_hash),
-		Username:    username,
+		Success:     success,
+		Name:        name,
 	}
 
 	api.RespondOK(w, response)
 }
 
-var client *mongo.Client
-
-func SetClientSignIn(c *mongo.Client) {
-	client = c
-}
-
 // Insert Credentials Code Here
-func CheckCredentials(Username string, PasswordHash string) bool {
+func CheckCredentials(Username string, PasswordHash string) (bool, string) {
+	// Checks for a specific username in the login Database
+	coll := db.CLIENT.Database("login-api-db").Collection("users")
 
-	//checks for a specific username in the login Database
-	coll := client.Database("loginDB").Collection("user_login")
-
-	//search a database for a certain document
+	// Search a database for a certain document
 	var result bson.M
-	err := coll.FindOne(context.TODO(), bson.D{{"username", Username}}).Decode(&result)
+	err := coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		log.Warning("No document was found with the title", Username)
-		return false
-	}
-	if err != nil {
-		panic(err)
-	}
-
-	//ping to check if mongo is successfully connected
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
+		return false, ""
+	} else if err != nil {
+		log.Error("Error while validating password", err)
+		return false, ""
 	}
 
-	return result["password"] == PasswordHash
+	// Probably should make sure we can convert name to string.
+	return result["password"] == PasswordHash, result["name"].(string)
 }

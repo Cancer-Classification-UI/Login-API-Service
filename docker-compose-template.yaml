@@ -1,0 +1,33 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    volumes:
+      - ./db/preload/preload.sh:/docker-entrypoint-initdb.d/preload.sh  # Copy initdb.sh into the container
+      - ./db/preload:/preload
+    ports:
+      - "<MONGO_PORT>:27017" # Redirect default port to port we want
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: <MONGO_ROOT_USERNAME>
+      MONGO_INITDB_ROOT_PASSWORD: <MONGO_ROOT_PASSWORD>
+      MONGO_INITDB_DATABASE: login-api-db
+      MONGO_PORT: <MONGO_PORT>
+    networks:
+      - mynetwork
+
+
+  ccu-login-api:
+    image: ccu-login-api:latest
+    volumes:
+      - ./log.txt:/usr/src/app/log.txt
+    ports:
+      - "<API_PORT>:<API_PORT>"  # Adjust the port if needed
+    depends_on:
+      - mongo
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+

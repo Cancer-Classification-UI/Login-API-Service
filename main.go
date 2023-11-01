@@ -13,21 +13,17 @@ import (
 
 	auth "ccu/api/auth"
 	test "ccu/api/test"
+	db "ccu/db"
 
 	log "github.com/sirupsen/logrus"
 
 	_ "ccu/docs"
-
-	"context"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/thedevsaddam/gojsonq"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // @title           Login API
@@ -42,26 +38,7 @@ func main() {
 
 	CreateLog()
 	SetupLog()
-
-	//get Mongo URI for connection
-	uri := os.Getenv("MONGODB_URI")
-	if uri == "" {
-		log.Fatal("You must set your 'MONGODB_URI'")
-	}
-
-	//connect to mongo
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	auth.SetClientSignIn(client)
-
+	db.InitDB()
 	SetupEndpoint()
 
 }
@@ -122,7 +99,6 @@ func SetupLog() {
 	log.Info("STARTING LOG...")
 	log.Info("LOG_LEVEL: " + logLevel)
 	log.Info("METHOD_LOGGING: " + methodLogging)
-
 }
 
 // Setup http as a go routine
@@ -179,4 +155,5 @@ func WaitForOSSignal(sig chan os.Signal, wg *sync.WaitGroup) {
 // Performs cleanup of service to make sure no leaks of resources
 func Cleanup() {
 	fmt.Println("Cleaning up!")
+	db.Cleanup()
 }
