@@ -8,8 +8,7 @@ type SignInRequest struct {
 }
 
 type SignInResponse struct {
-	Id          string    `json:"id"`
 	DateCreated time.Time `json:"date_created"`
 	Success     bool      `json:"success"`
-	Username    string    `json:"username"`
+	Name        string    `json:"name"`
 }

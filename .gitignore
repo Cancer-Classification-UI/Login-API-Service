@@ -1,3 +1,4 @@
 .env
 log*.txt
 .DS_Store
+docker-compose.yaml

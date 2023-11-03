@@ -9,7 +9,7 @@ API Documentation is created using the [Swagger](https://swagger.io/). The url f
 http://<ip>:<APP_PORT>/swagger/
 ``` 
 
-If you are running locally it would be at [http://localhost:8084/swagger/](http://localhost:8084/swagger/)
+If you are running locally it would be at [http://localh ost:8084/swagger/](http://localhost:8084/swagger/)
 
 # How to run
 
@@ -26,10 +26,12 @@ vim .env
 
 ### `.env` Template
 ```
-APP_PORT=:8084 // Standard port for this microservice
+APP_PORT=8084
 LOG_LEVEL=trace
 METHOD_LOGGING=false
-MONGODB_URI=<URI HERE>
+MONGODB_URI=mongodb://<username>:<passwd>@mongo # Or any valid URI
+MONGODB_REDIRECT=27084 # Port to redirect the mongo container
+
 ```
 > Additional fields will also be required in the `.env` file to run the microservice successfully. Here is a basic template of the `.env`. Customize to your liking. This template will change as the microservice matures and implements new features.
 
@@ -44,7 +46,7 @@ You will need the swaggo package to create the swagger files.
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
-### Docke (Optional)
+### Docker (Optional)
 If you want to use the docker containers provided (Recommended) [install docker](https://www.docker.com/get-started/). It also is required if you want to use the scripts.
 
 ## Build
@@ -54,7 +56,6 @@ If you want to use the docker containers provided (Recommended) [install docker]
 
 ```bash
 docker build -t ccu-login-api .
-swag init
 ```
 </details>
 
@@ -69,6 +70,9 @@ swag init
 </details>
 
 ## Run
+
+Can be run manually or automatically via a docker-compose. Scripts will use docker-compose and have the additional benefit of launched a respective mongo container, filling it with preload data for testing.
+
 <details close>
 <summary><h3>With Docker</h3></summary>
 <br>
@@ -81,9 +85,10 @@ Then run the docker image
 ```bash
 ./scripts/start.sh
 ```
-or manually with
+or manually by modifiying the respective values in the `docker-compose-template.yaml` and 
 ```bash
-docker run -d -p $(cat .env | grep APP_PORT= | cut -d: -f2 | awk '/^/ { print $1":"$1 }') -v $(pwd)/log.txt:/usr/src/app/log.txt --name login-api ccu-login-api
+cp docker-compose-template.yaml docker-compose.yaml
+docker-compose up -d
 ```
 </details>
 
@@ -105,6 +110,8 @@ go mod tidy
 </details>
 
 ## Other
+### Accessing docker-compose launched Mongo container
+If you used docker-compose or used any of the scripts, there will be a mongo db instance launched alongside the go microservice. You can access this at either the `127.0.0.1:<MONGODB_REDIRECT .env value>` or by connecting via a terminal (see how to do this in the `View Docker terminal or unmounted files` section) into the container and using `mongosh` to connect to the `URI` in the `.env` file.
 
 ### View Docker terminal or unmounted files
 If you launched the container using docker, you can execute a sh terminal inside the container to gain access to it and browse around.

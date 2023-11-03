@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"ccu/api"
+	db "ccu/db"
 	mAPI "ccu/model/api"
 
 	"regexp"
@@ -30,6 +31,7 @@ import (
 // @Failure      500
 // @Router       /create-account [post]
 func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
+	log.Info("In createaccount handler -------------------------")
 	r.ParseForm()
 	if r.Method != http.MethodPost {
 		api.Respond(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -50,14 +52,13 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	regex := regexp.MustCompile("^..*@.*.\\.(com|net|org)$")
+	regex := regexp.MustCompile(`^..*@.*.\.(com|net|org)$`)
 
 	if email == "" || !regex.MatchString(email) {
 		api.Respond(w, "Invalid Email Parameter", http.StatusBadRequest)
 		return
 	}
 
-	log.Info("In createaccount handler -------------------------")
 	response := mAPI.CreateAccountResponse{
 		Id:          "CREATEACCOUNT",
 		DateCreated: time.Now(),
@@ -71,11 +72,11 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 // Insert Credentials Code Here
 func CredentialsExist(Username string, PasswordHash string, Email string) bool {
 	//checks for a specific username in the login Database
-	coll := client.Database("loginDB").Collection("user_login")
+	coll := db.CLIENT.Database("login-api-db").Collection("users")
 
 	//search a database for a certain document
 	var result bson.M
-	err := coll.FindOne(context.TODO(), bson.D{{"username", Username}}).Decode(&result)
+	err := coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		row := bson.M{
 			"username": Username,
