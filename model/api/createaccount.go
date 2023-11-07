@@ -8,3 +8,9 @@ type CreateAccountResponse struct {
 	Success     bool      `json:"success"`
 	Username    string    `json:"username"`
 }
+type CreateAccountDatabase struct {
+	Username     string `bson:"username"`
+	PasswordHash string `bson:"password"`
+	Email        string `bson:"email"`
+	Name         string `bson:"name"`
+}
