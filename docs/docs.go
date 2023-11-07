@@ -42,6 +42,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "name of the user",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "hashed account password",
                         "name": "password_hash",
                         "in": "query",
@@ -62,6 +69,50 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/model.SignInResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/password-reset": {
+            "post": {
+                "description": "Checks for database for email and then sends a reset code to the email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Password Reset for user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email of the user",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PasswordResetResponse"
                             }
                         }
                     },
@@ -165,20 +216,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.PasswordResetResponse": {
+            "type": "object",
+            "properties": {
+                "date_created": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.SignInResponse": {
             "type": "object",
             "properties": {
                 "date_created": {
                     "type": "string"
                 },
-                "id": {
+                "name": {
                     "type": "string"
                 },
                 "success": {
                     "type": "boolean"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },

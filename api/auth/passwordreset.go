@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"ccu/api"
+	_ "ccu/db"
+	mAPI "ccu/model/api"
 
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,7 +19,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// PostCreateAccount godoc
+// PostForgotPassword godoc
 // @Summary      Password Reset for user
 // @Description  Checks for database for email and then sends a reset code to the email
 // @Tags         Auth
@@ -69,6 +71,12 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.RespondOK(w, fmt.Sprintf("Password reset email sent to %s", email))
+	response := mAPI.PasswordResetResponse{
+		DateCreated: time.Now(),
+		Success:     true,
+	}
+
+	api.RespondOK(w, response)
 }
 
 // GenerateResetCode creates a 6-digit reset code
