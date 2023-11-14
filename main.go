@@ -47,6 +47,8 @@ func handleRequests(r *mux.Router) {
 	r.HandleFunc("/api/v1/test-no-auth", test.GetTest).Methods("GET")
 	r.HandleFunc("/api/v1/signin", auth.GetSignIn).Methods("GET")
 	r.HandleFunc("/api/v1/create-account", auth.PostCreateAccount).Methods("POST")
+	r.HandleFunc("/api/v1/password-reset-email", auth.PostForgotPassword).Methods("POST")
+	r.HandleFunc("/api/v1/password-change", auth.PostPasswordChange).Methods("POST")
 }
 
 // Load in .env variables and setup logging

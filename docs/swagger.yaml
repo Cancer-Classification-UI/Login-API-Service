@@ -84,7 +84,46 @@ paths:
       summary: Creates account for the user
       tags:
       - Auth
-  /password-reset:
+  /password-change:
+    post:
+      consumes:
+      - application/json
+      description: Checks for a reset code match and then changes the password
+      parameters:
+      - description: new hashed account password
+        in: query
+        name: password_hash
+        required: true
+        type: string
+      - description: email of the user
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: password reset code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PasswordResetResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Allows users to change their password with a valid reset code
+      tags:
+      - Auth
+  /password-reset-email:
     post:
       consumes:
       - application/json

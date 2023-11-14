@@ -8,15 +8,16 @@ import (
 	"net/http"
 	"regexp"
 	"time"
+	"net/url"
 
 	"ccu/api"
-	_ "ccu/db"
+	db "ccu/db"
 	mAPI "ccu/model/api"
 
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	_ "go.mongodb.org/mongo-driver/mongo"
+	_ "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // PostForgotPassword godoc
@@ -30,7 +31,7 @@ import (
 // @Failure      400
 // @Failure      404
 // @Failure      500
-// @Router       /password-reset [post]
+// @Router       /password-reset-email [post]
 func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 	log.Info("Handling forgot password request")
 
@@ -70,7 +71,6 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	api.RespondOK(w, fmt.Sprintf("Password reset email sent to %s", email))
 	response := mAPI.PasswordResetResponse{
 		DateCreated: time.Now(),
 		Success:     true,
@@ -81,7 +81,7 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 
 // GenerateResetCode creates a 6-digit reset code
 func GenerateResetCode() (string, error) {
-	const min = 100000 // Minimum 6-digit number
+	const min = 0 // Minimum 6-digit number
 	const max = 999999 // Maximum 6-digit number
 
 	// Generate a random number within the range.
@@ -98,22 +98,35 @@ func GenerateResetCode() (string, error) {
 
 // StoreResetCode in the database for later verification
 func StoreResetCode(email string, code string) error {
-	// Connect to the database
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("m")) // dont think this is right
+	// Check for valid email
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	var result struct{}
+	emailCollection := db.CLIENT.Database("login-api-db").Collection("users")
+
+	err := emailCollection.FindOne(ctx, map[string]interface{}{"email": email}).Decode(&result)
 	if err != nil {
-		log.Errorf("Failed to connect to the database: %v", err)
 		return err
 	}
-	defer client.Disconnect(context.TODO())
 
 	// Get the collection where reset codes are stored
-	collection := client.Database("database-name-here").Collection("password_reset_codes")
+	collection := db.CLIENT.Database("login-api-db").Collection("password-reset-codes")
+
+	// Define the filter to match documents with a specific email
+	filter := bson.M{"email": email}
+
+	// Delete any previous email codes
+	_, err = collection.DeleteMany(context.Background(), filter)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 
 	// Create a PasswordResetCode instance
 	resetCode := bson.M{
 		"email":     email,
 		"code":      code,
-		"createdAt": time.Now(), // Note: Added a timestamp for the creation of the reset code.
+		"createdAt": time.Now().Add(5 * time.Minute), // Note: Added a timestamp for the expiration of the reset code.
 	}
 
 	// Insert the reset code into the database
@@ -128,15 +141,22 @@ func StoreResetCode(email string, code string) error {
 
 // SendPasswordResetEmail calls an external API to send the reset code
 func SendPasswordResetEmail(email string, code string) error {
-	// Placeholder for sending email, replace with actual call to external API
-	log.Infof("Sending password reset code %s to email %s", code, email)
+	baseURL := "http://127.0.0.1:8087"
+	endpoint := "/api/v1/send-code"
+	sendUrl := baseURL + endpoint
 
-	// Example POST request to the notification API (replace with actual code)
-	// response, err := http.Post("notification-api-url", "application/json", bytes.NewBufferString(payload))
-	// if err != nil {
-	//     return err
-	// }
-	// defer response.Body.Close()
+
+	// Email address and code to be sent in the request body
+	form := url.Values{}
+	form.Add("email", email)
+	form.Add("code", code)
+
+	// Create a request with POST method, specifying the URL and request body
+	_, err := http.PostForm(sendUrl, form)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return err
+	}
 
 	return nil
 }
