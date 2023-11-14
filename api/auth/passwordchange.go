@@ -77,10 +77,9 @@ func PostPasswordChange(w http.ResponseWriter, r *http.Request) {
 
 // Insert Credentials Code Here
 func ChangePassword(PasswordHash string, Email string, Code string) error {
-	//checks for a specific username in the login Database
 	coll := db.CLIENT.Database("login-api-db").Collection("password-reset-codes")
 
-	//search a database for a certain document
+	// Search for a matching email
 	var result bson.M
 	err := coll.FindOne(context.TODO(), bson.D{{Key: "email", Value: Email}}).Decode(&result)
 	if err != nil {
