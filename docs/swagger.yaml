@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  model.PasswordResetResponse:
+  model.PasswordChangeResponse:
     properties:
       date_created:
         type: string
@@ -112,7 +112,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.PasswordResetResponse'
+              $ref: '#/definitions/model.PasswordChangeResponse'
             type: array
         "400":
           description: Bad Request
@@ -123,7 +123,7 @@ paths:
       summary: Allows users to change their password with a valid reset code
       tags:
       - Auth
-  /password-reset-email:
+  /password-change-email:
     post:
       consumes:
       - application/json
@@ -142,7 +142,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.PasswordResetResponse'
+              $ref: '#/definitions/model.PasswordChangeResponse'
             type: array
         "400":
           description: Bad Request
@@ -150,7 +150,7 @@ paths:
           description: Not Found
         "500":
           description: Internal Server Error
-      summary: Password Reset for user
+      summary: Password change email functionality
       tags:
       - Auth
   /signin:

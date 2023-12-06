@@ -126,7 +126,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.PasswordResetResponse"
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
                             }
                         }
                     },
@@ -142,7 +142,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/password-reset-email": {
+        "/password-change-email": {
             "post": {
                 "description": "Checks for database for email and then sends a reset code to the email",
                 "consumes": [
@@ -154,7 +154,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Password Reset for user",
+                "summary": "Password change email functionality",
                 "parameters": [
                     {
                         "type": "string",
@@ -170,7 +170,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.PasswordResetResponse"
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
                             }
                         }
                     },
@@ -274,7 +274,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.PasswordResetResponse": {
+        "model.PasswordChangeResponse": {
             "type": "object",
             "properties": {
                 "date_created": {

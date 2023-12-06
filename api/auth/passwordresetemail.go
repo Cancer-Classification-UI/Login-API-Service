@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"net/url"
+	"os"
 	"regexp"
 	"time"
-	"net/url"
 
 	"ccu/api"
 	db "ccu/db"
@@ -20,20 +21,20 @@ import (
 	_ "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// PostForgotPassword godoc
-// @Summary      Password Reset for user
+// PostPasswordChangeEmail godoc
+// @Summary      Password change email functionality
 // @Description  Checks for database for email and then sends a reset code to the email
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        email         query string    true "email of the user"
-// @Success      200  {array}   mAPI.PasswordResetResponse
+// @Success      200  {array}   mAPI.PasswordChangeResponse
 // @Failure      400
 // @Failure      404
 // @Failure      500
-// @Router       /password-reset-email [post]
-func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
-	log.Info("Handling forgot password request")
+// @Router       /password-change-email [post]
+func PostPasswordChangeEmail(w http.ResponseWriter, r *http.Request) {
+	log.Info("In password-change email handler -------------------------")
 
 	// Make sure only POST requests are processed
 	if r.Method != http.MethodPost {
@@ -53,6 +54,7 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 	// Generate a reset code
 	code, err := GenerateResetCode() // Now it will generate a 6-digit number
 	if err != nil {
+		log.Error("Error generating reset code", err)
 		api.Respond(w, "Error generating reset code", http.StatusInternalServerError)
 		return
 	}
@@ -60,6 +62,7 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 	// Store the reset code in the database
 	err = StoreResetCode(email, code)
 	if err != nil {
+		log.Error("Error storing reset code", err)
 		api.Respond(w, "Error storing reset code", http.StatusInternalServerError)
 		return
 	}
@@ -67,11 +70,12 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 	// Send the password reset email
 	err = SendPasswordResetEmail(email, code)
 	if err != nil {
+		log.Error("Error sending reset email", err)
 		api.Respond(w, "Error sending reset email", http.StatusInternalServerError)
 		return
 	}
 
-	response := mAPI.PasswordResetResponse{
+	response := mAPI.PasswordChangeResponse{
 		DateCreated: time.Now(),
 		Success:     true,
 	}
@@ -81,7 +85,7 @@ func PostForgotPassword(w http.ResponseWriter, r *http.Request) {
 
 // GenerateResetCode creates a 6-digit reset code
 func GenerateResetCode() (string, error) {
-	const min = 0 // Minimum 6-digit number
+	const min = 0      // Minimum 6-digit number
 	const max = 999999 // Maximum 6-digit number
 
 	// Generate a random number within the range.
@@ -141,10 +145,21 @@ func StoreResetCode(email string, code string) error {
 
 // SendPasswordResetEmail calls an external API to send the reset code
 func SendPasswordResetEmail(email string, code string) error {
-	baseURL := "http://127.0.0.1:8087"
-	endpoint := "/api/v1/send-code"
-	sendUrl := baseURL + endpoint
 
+	// Get the base URL and endpoint from the environment variables
+	baseURL := os.Getenv("NOTIFICATION_SERVICE_URL")
+	if baseURL == "" {
+		log.Warning("NOTIFICATION_SERVICE_URL not specified in .env, defaulting to http://localhost:8087")
+		baseURL = "http://localhost:8087"
+	}
+
+	endpoint := os.Getenv("NOTIFICATION_SERVICE_API_ENDPOINT")
+	if endpoint == "" {
+		log.Warning("NOTIFICATION_SERVICE_API_ENDPOINT not specified in .env, defaulting to /api/v1")
+		endpoint = "/api/v1"
+	}
+
+	sendUrl := baseURL + endpoint + "/send-code"
 
 	// Email address and code to be sent in the request body
 	form := url.Values{}

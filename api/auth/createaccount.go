@@ -83,21 +83,25 @@ func CredentialsExist(Username string, PasswordHash string, Email string, Name s
 
 	//search a database for a certain document
 	var result bson.M
-	err := coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
+	err := coll.FindOne(context.Background(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
-		row := mAPI.CreateAccountDatabase{
-			Username:     Username,
-			PasswordHash: PasswordHash,
-			Email:        Email,
-			Name:         Name,
+		err = nil
+		err := coll.FindOne(context.Background(), bson.D{{Key: "email", Value: Email}}).Decode(&result)
+		if err == mongo.ErrNoDocuments {
+			row := mAPI.CreateAccountDatabase{
+				Username:     Username,
+				PasswordHash: PasswordHash,
+				Email:        Email,
+				Name:         Name,
+			}
+			err = nil
+			_, err := coll.InsertOne(context.Background(), row)
+			if err != nil {
+				log.Fatal(err)
+				return false
+			}
+			return true
 		}
-
-		_, err := coll.InsertOne(context.TODO(), row)
-		if err != nil {
-			log.Fatal(err)
-			return false
-		}
-		return true
 	}
 	if err != nil {
 		panic(err)

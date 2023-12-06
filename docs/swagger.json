@@ -119,7 +119,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.PasswordResetResponse"
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
                             }
                         }
                     },
@@ -135,7 +135,7 @@
                 }
             }
         },
-        "/password-reset-email": {
+        "/password-change-email": {
             "post": {
                 "description": "Checks for database for email and then sends a reset code to the email",
                 "consumes": [
@@ -147,7 +147,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Password Reset for user",
+                "summary": "Password change email functionality",
                 "parameters": [
                     {
                         "type": "string",
@@ -163,7 +163,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.PasswordResetResponse"
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
                             }
                         }
                     },
@@ -267,7 +267,7 @@
         }
     },
     "definitions": {
-        "model.PasswordResetResponse": {
+        "model.PasswordChangeResponse": {
             "type": "object",
             "properties": {
                 "date_created": {
