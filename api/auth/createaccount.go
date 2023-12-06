@@ -23,6 +23,7 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        username      query string    true "username of the account"
+// @Param        name          query string    true "name of the user"
 // @Param        password_hash query string    true "hashed account password"
 // @Param        email         query string    true "email of the user"
 // @Success      200  {array}   mAPI.SignInResponse
@@ -41,9 +42,15 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 	username := r.Form.Get("username")
 	password_hash := r.Form.Get("password_hash")
 	email := r.Form.Get("email")
+	name := r.Form.Get("name")
 
 	if username == "" {
 		api.Respond(w, "Invalid Username Parameter", http.StatusBadRequest)
+		return
+	}
+
+	if name == "" {
+		api.Respond(w, "Invalid Name Parameter", http.StatusBadRequest)
 		return
 	}
 
@@ -62,7 +69,7 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 	response := mAPI.CreateAccountResponse{
 		Id:          "CREATEACCOUNT",
 		DateCreated: time.Now(),
-		Success:     CredentialsExist(username, password_hash, email),
+		Success:     CredentialsExist(username, password_hash, email, name),
 		Username:    username,
 	}
 
@@ -70,26 +77,31 @@ func PostCreateAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 // Insert Credentials Code Here
-func CredentialsExist(Username string, PasswordHash string, Email string) bool {
+func CredentialsExist(Username string, PasswordHash string, Email string, Name string) bool {
 	//checks for a specific username in the login Database
 	coll := db.CLIENT.Database("login-api-db").Collection("users")
 
 	//search a database for a certain document
 	var result bson.M
-	err := coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
+	err := coll.FindOne(context.Background(), bson.D{{Key: "username", Value: Username}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
-		row := bson.M{
-			"username": Username,
-			"password": PasswordHash,
-			"email":    Email,
+		err = nil
+		err := coll.FindOne(context.Background(), bson.D{{Key: "email", Value: Email}}).Decode(&result)
+		if err == mongo.ErrNoDocuments {
+			row := mAPI.CreateAccountDatabase{
+				Username:     Username,
+				PasswordHash: PasswordHash,
+				Email:        Email,
+				Name:         Name,
+			}
+			err = nil
+			_, err := coll.InsertOne(context.Background(), row)
+			if err != nil {
+				log.Fatal(err)
+				return false
+			}
+			return true
 		}
-
-		_, err := coll.InsertOne(context.TODO(), row)
-		if err != nil {
-			log.Fatal(err)
-			return false
-		}
-		return true
 	}
 	if err != nil {
 		panic(err)

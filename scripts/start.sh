@@ -18,12 +18,14 @@ if [ -f "$SCRIPT_DIR/../.env" ]; then
         -e "s/<MONGO_ROOT_PASSWORD>/$MONGO_PASSWORD/g" \
         -e "s/<API_PORT>/$(grep -oP 'APP_PORT=\K.*' $SCRIPT_DIR/../.env)/g" \
         -e "s/<MONGO_PORT>/$(grep -oP 'MONGODB_REDIRECT=\K.*' $SCRIPT_DIR/../.env)/g" \
+        -e "s/<NOTIFICATION_SERVICE_URL>/$(grep 'NOTIFICATION_SERVICE_URL' $SCRIPT_DIR/../.env | cut -d: -f3)/g" \
         $SCRIPT_DIR/../docker-compose-template.yaml > $SCRIPT_DIR/../docker-compose.yaml
 else 
     sed -e "s/<MONGO_ROOT_USERNAME>/ccu/g" \
         -e "s/<MONGO_ROOT_PASSWORD>/password/g" \
         -e "s/<API_PORT>/8084/g" \
         -e "s/<MONGO_PORT>/27084/g" \
+        -e "s/<NOTIFICATION_SERVICE_URL>/8087/g" \
         $SCRIPT_DIR/../docker-compose-template.yaml > $SCRIPT_DIR/../docker-compose.yaml
 fi
 

@@ -42,6 +42,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "name of the user",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "hashed account password",
                         "name": "password_hash",
                         "in": "query",
@@ -62,6 +69,108 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/model.SignInResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/password-change": {
+            "post": {
+                "description": "Checks for a reset code match and then changes the password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Allows users to change their password with a valid reset code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "new hashed account password",
+                        "name": "password_hash",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email of the user",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password reset code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/password-change-email": {
+            "post": {
+                "description": "Checks for database for email and then sends a reset code to the email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Password change email functionality",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email of the user",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PasswordChangeResponse"
                             }
                         }
                     },
@@ -165,20 +274,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.PasswordChangeResponse": {
+            "type": "object",
+            "properties": {
+                "date_created": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.SignInResponse": {
             "type": "object",
             "properties": {
                 "date_created": {
                     "type": "string"
                 },
-                "id": {
+                "name": {
                     "type": "string"
                 },
                 "success": {
                     "type": "boolean"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },

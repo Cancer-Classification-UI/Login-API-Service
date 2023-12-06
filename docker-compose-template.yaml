@@ -20,6 +20,7 @@ services:
     image: ccu-login-api:latest
     ports:
       - "<API_PORT>:<API_PORT>"  # Adjust the port if needed
+      - "<NOTIFICATION_SERVICE_URL>:<NOTIFICATION_SERVICE_URL>"
     depends_on:
       - mongo
     networks:
